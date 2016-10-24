@@ -1,6 +1,31 @@
 package app
 
-import "github.com/revel/revel"
+import (
+	"database/sql"
+	"fmt"
+
+	"github.com/lib/pq"
+	"github.com/revel/revel"
+)
+
+var DB *sql.DB
+
+func InitDB() {
+
+	config := revel.Config
+
+	connstring := fmt.Sprintf("user=%s password='%s' dbname=%s sslmode=disable", config.String("db.username"), config.String("db.pwd"), config.String("db.dbname"))
+
+	var err error
+	DB, err = sql.Open(config.String("db.diriver"), connstring)
+
+	if err != nil {
+		revel.INFO.Println("DB error: ", err)
+	}
+
+	revel.INFO.Println("DB Connected")
+
+}
 
 func init() {
 	// Filters is the default set of global filters.
@@ -21,7 +46,7 @@ func init() {
 
 	// register startup functions with OnAppStart
 	// ( order dependent )
-	// revel.OnAppStart(InitDB)
+	revel.OnAppStart(InitDB)
 	// revel.OnAppStart(FillCache)
 }
 
