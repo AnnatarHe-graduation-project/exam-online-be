@@ -1,30 +1,40 @@
 package app
 
 import (
-	"database/sql"
 	"fmt"
 
-	"github.com/lib/pq"
+	. "github.com/AnnatarHe/exam-online-be/app/models"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/revel/revel"
 )
 
-var DB *sql.DB
+// the database instance
+var Gorm *gorm.DB
 
+// init the database
 func InitDB() {
 
 	config := revel.Config
 
-	connstring := fmt.Sprintf("user=%s password='%s' dbname=%s sslmode=disable", config.String("db.username"), config.String("db.pwd"), config.String("db.dbname"))
-
+	username, _ := config.String("db.username")
+	pwd, _ := config.String("db.pwd")
+	dbname, _ := config.String("db.dbname")
+	connstring := fmt.Sprintf("user=%s password='%s' dbname=%s sslmode=disable", username, pwd, dbname)
 	var err error
-	DB, err = sql.Open(config.String("db.diriver"), connstring)
+	Gorm, err = gorm.Open("postgres", connstring)
+	defer Gorm.Close()
 
 	if err != nil {
 		revel.INFO.Println("DB error: ", err)
 	}
 
-	revel.INFO.Println("DB Connected")
+	Gorm.AutoMigrate(&Course{}, &User{}, &News{}, &Paper{}, &Question{})
+	if !Gorm.HasTable(&Course{}) {
+		revel.INFO.Println("there is user")
+	}
 
+	revel.INFO.Println("DB Connected")
 }
 
 func init() {

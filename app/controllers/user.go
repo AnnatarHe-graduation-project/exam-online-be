@@ -24,10 +24,10 @@ func (c User) Add() revel.Result {
  */
 func (c User) Login() revel.Result {
 
-	var uid, role, school_id, News_id int
-	var name, pwd, avatar string
+	// var uid, role, school_id, News_id int
+	// var name, pwd, avatar string
+	var uid int
 	c.Params.Bind(&uid, "uid")
-	c.Params.Bind
 
 	return c.RenderJson(map[string]int{"uid": uid})
 }

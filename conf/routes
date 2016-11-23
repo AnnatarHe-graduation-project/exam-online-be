@@ -7,7 +7,7 @@ module:testrunner
 GET     /                                       App.Index
 
 POST	/auth/login								User.Login
-
+GET     /demo/db                                Demo.Database
 
 
 
