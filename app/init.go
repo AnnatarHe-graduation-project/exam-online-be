@@ -29,7 +29,10 @@ func InitDB() {
 		revel.INFO.Println("DB error: ", err)
 	}
 
-	Gorm.AutoMigrate(&Course{}, &User{}, &News{}, &Paper{}, &Question{})
+	// 这里明天得看看是什么情况, 为什么不会自动创建表
+	if err := Gorm.AutoMigrate(&Course{}, &User{}, &News{}, &Paper{}, &Question{}).Error; err != nil {
+		revel.INFO.Printf("No error should happen when create table, but got %+v", err)
+	}
 	if !Gorm.HasTable(&Course{}) {
 		revel.INFO.Println("there is user")
 	}
