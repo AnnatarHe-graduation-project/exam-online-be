@@ -9,12 +9,12 @@ import (
  */
 type Question struct {
 	gorm.Model
-	Title   string
-	Content string
-	Answers string `gorm:"type:json;"`
-	Right   string `gorm:"type:json;"`
-	HasBug  int
-	Stared  int
-	Score   int // 答对这道题，能得的分数
-	Courses []Course
+	Title    string
+	Content  string
+	Answers  string `gorm:"type:json;"`
+	Right    string `gorm:"type:json;"`
+	HasBug   int
+	Stared   int
+	Score    int // 答对这道题，能得的分数
+	CourseID []Course
 }

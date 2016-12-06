@@ -9,4 +9,5 @@ type News struct {
 	Bg      string // 背景大图
 	Up      int    `gorm:"default:0;"` // 被赞了多少次
 	Down    int    `gorm:"default:0;"` // 被踩了多少次
+	UserID  []User `gorm:"many2many:user_has_news;"`
 }

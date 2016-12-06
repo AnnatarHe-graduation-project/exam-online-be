@@ -4,8 +4,9 @@ import (
 	"fmt"
 
 	. "github.com/AnnatarHe/exam-online-be/app/models"
+
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/lib/pq"
 	"github.com/revel/revel"
 )
 
@@ -14,6 +15,7 @@ var Gorm *gorm.DB
 
 // init the database
 func InitDB() {
+	var err error
 
 	config := revel.Config
 
@@ -21,20 +23,16 @@ func InitDB() {
 	pwd, _ := config.String("db.pwd")
 	dbname, _ := config.String("db.dbname")
 	connstring := fmt.Sprintf("user=%s password='%s' dbname=%s sslmode=disable", username, pwd, dbname)
-	var err error
+
 	Gorm, err = gorm.Open("postgres", connstring)
-	defer Gorm.Close()
+	Gorm.LogMode(true)
 
 	if err != nil {
 		revel.INFO.Println("DB error: ", err)
 	}
 
-	// 这里明天得看看是什么情况, 为什么不会自动创建表
-	if err := Gorm.AutoMigrate(&Course{}, &User{}, &News{}, &Paper{}, &Question{}).Error; err != nil {
+	if err = Gorm.AutoMigrate(&Course{}, &User{}, &News{}, &Paper{}, &Question{}).Error; err != nil {
 		revel.INFO.Printf("No error should happen when create table, but got %+v", err)
-	}
-	if !Gorm.HasTable(&Course{}) {
-		revel.INFO.Println("there is user")
 	}
 
 	revel.INFO.Println("DB Connected")

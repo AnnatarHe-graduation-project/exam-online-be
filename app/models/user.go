@@ -11,6 +11,6 @@ type User struct {
 	SchoolID string // 学号，教师号什么的
 	Pwd      string
 	Avatar   string  // 头像
-	Papers   []Paper `gorm:"many2many:user_papers;"`
-	News     []News
+	PaperID  []Paper `gorm:"many2many:user_papers;"`
+	NewsID   []News  `gorm:"many2many:user_has_news;"`
 }

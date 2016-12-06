@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"github.com/AnnatarHe/exam-online-be/app"
+	"github.com/AnnatarHe/exam-online-be/app/models"
 	"github.com/revel/revel"
 )
 
@@ -24,10 +26,15 @@ func (c User) Add() revel.Result {
  */
 func (c User) Login() revel.Result {
 
-	// var uid, role, school_id, News_id int
-	// var name, pwd, avatar string
 	var uid int
 	c.Params.Bind(&uid, "uid")
 
 	return c.RenderJson(map[string]int{"uid": uid})
+}
+
+func (c User) Fetch(uid int) revel.Result {
+	revel.INFO.Println(uid)
+	u := models.User{}
+	user := app.Gorm.Find(&u, uid)
+	return c.RenderJson(user)
 }

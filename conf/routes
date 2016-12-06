@@ -8,7 +8,7 @@ GET     /                                       App.Index
 
 POST	/auth/login								User.Login
 GET     /demo/db                                Demo.Database
-
+GET     /users/:uid                              User.Fetch
 
 
 # Ignore favicon requests
