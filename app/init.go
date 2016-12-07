@@ -6,7 +6,7 @@ import (
 	. "github.com/AnnatarHe/exam-online-be/app/models"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/lib/pq"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/revel/revel"
 )
 

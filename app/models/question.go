@@ -15,6 +15,6 @@ type Question struct {
 	Right    string `gorm:"type:json;"`
 	HasBug   int
 	Stared   int
-	Score    int // 答对这道题，能得的分数
-	CourseID []Course
+	Score    int      // 答对这道题，能得的分数
+	CourseID []Course `gorm:"many2many:course_has_questions"`
 }

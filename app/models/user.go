@@ -12,5 +12,5 @@ type User struct {
 	Pwd      string
 	Avatar   string  // 头像
 	PaperID  []Paper `gorm:"many2many:user_papers;"`
-	NewsID   []News  `gorm:"many2many:user_has_news;"`
+	NewsID   []News
 }

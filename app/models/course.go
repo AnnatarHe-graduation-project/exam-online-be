@@ -9,6 +9,7 @@ type Course struct {
 	gorm.Model
 	Name       string
 	Desc       string
-	UserID     []User     `gorm:"many2many:course_has_users;"`
-	QuestionID []Question `gorm:"many2many:course_has_questions"`
+	NewsID     []News     `gorm:"many2many:course_has_news;"`
+	PaperID    []Paper    `gorm:"many2many:course_has_papers;"`
+	QuestionID []Question `gorm:"many2many:course_has_questions;"`
 }
