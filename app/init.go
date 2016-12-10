@@ -8,13 +8,17 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/revel/revel"
+	"gopkg.in/redis.v5"
 )
 
-// the database instance
+// Gorm: the database instance
 var Gorm *gorm.DB
 
+// Redis: the redis instance
+var Redis *redis.Client
+
 // init the database
-func InitDB() {
+func initDatabase() {
 	var err error
 
 	config := revel.Config
@@ -22,7 +26,9 @@ func InitDB() {
 	username, _ := config.String("db.username")
 	pwd, _ := config.String("db.pwd")
 	dbname, _ := config.String("db.dbname")
-	connstring := fmt.Sprintf("user=%s password='%s' dbname=%s sslmode=disable", username, pwd, dbname)
+	connstring := fmt.Sprintf("postgres://%s:%s@localhost/%s?sslmodel=disable", username, pwd, dbname)
+
+	revel.INFO.Println(connstring)
 
 	Gorm, err = gorm.Open("postgres", connstring)
 	Gorm.LogMode(true)
@@ -36,6 +42,24 @@ func InitDB() {
 	}
 
 	revel.INFO.Println("DB Connected")
+}
+
+// init redis server
+func initRedis() {
+	Redis = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+	pong, err := Redis.Ping().Result()
+
+	revel.INFO.Println("redis: ", pong, err)
+}
+
+// InitDB: 初始化数据库
+func InitDB() {
+	initDatabase()
+	initRedis()
 }
 
 func init() {
