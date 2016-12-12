@@ -1,9 +1,9 @@
 package app
 
 import (
-	"fmt"
-
 	. "github.com/AnnatarHe/exam-online-be/app/models"
+
+	"fmt"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -26,9 +26,7 @@ func initDatabase() {
 	username, _ := config.String("db.username")
 	pwd, _ := config.String("db.pwd")
 	dbname, _ := config.String("db.dbname")
-	connstring := fmt.Sprintf("postgres://%s:%s@localhost/%s?sslmodel=disable", username, pwd, dbname)
-
-	revel.INFO.Println(connstring)
+	connstring := fmt.Sprintf("host=db user=%s password=%s dbname=%s sslmode=disable", username, pwd, dbname)
 
 	Gorm, err = gorm.Open("postgres", connstring)
 	Gorm.LogMode(true)
@@ -47,7 +45,7 @@ func initDatabase() {
 // init redis server
 func initRedis() {
 	Redis = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "redis:6379",
 		Password: "",
 		DB:       0,
 	})

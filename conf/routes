@@ -6,9 +6,12 @@ module:testrunner
 
 GET     /                                       App.Index
 
-POST	/auth/login								User.Login
+POST	/auth/login								UserController.Login
+POST    /user/finished/:pid                     UserController.FinishedPaper
 GET     /demo/db                                Demo.Database
-GET     /users/:uid                              User.Fetch
+GET     /users/:uid                             UserController.Fetch
+
+POST    /question/add                           QuestionController.Add
 
 
 # Ignore favicon requests
