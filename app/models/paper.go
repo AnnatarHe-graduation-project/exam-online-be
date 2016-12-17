@@ -4,6 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Paper 考试卷子
 type Paper struct {
 	gorm.Model
 	Title      string

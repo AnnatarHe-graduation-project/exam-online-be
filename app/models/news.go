@@ -2,6 +2,7 @@ package models
 
 import "github.com/jinzhu/gorm"
 
+// News is users put news to this site
 type News struct {
 	gorm.Model
 	Title    string

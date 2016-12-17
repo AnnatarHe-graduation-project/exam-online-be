@@ -4,7 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// 课程，相当于分类的功能
+// Course 课程，相当于分类的功能
 type Course struct {
 	gorm.Model
 	Name       string
