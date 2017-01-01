@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"encoding/json"
+
 	"github.com/AnnatarHe/exam-online-be/app"
 	"github.com/AnnatarHe/exam-online-be/app/models"
 	"github.com/AnnatarHe/exam-online-be/app/utils"
@@ -13,6 +15,7 @@ type UserController struct {
 }
 
 // Add: 添加用户
+// http -f POST :9000/auth/register username='AnnatarHe' pwd='aaa' school_id='01111111' role='11'
 func (c UserController) Add() revel.Result {
 
 	var username, pwd, schoolID string
@@ -23,18 +26,29 @@ func (c UserController) Add() revel.Result {
 	c.Params.Bind(&schoolID, "school_id")
 	c.Params.Bind(&role, "role")
 
+	PaperDone, _ := json.Marshal([]map[uint]int{{0: 0}})
+
 	user := models.User{
-		Name:     username,
-		Pwd:      pwd,
-		SchoolID: schoolID,
-		Role:     role,
+		Name:      username,
+		Pwd:       pwd,
+		SchoolID:  schoolID,
+		Role:      role,
+		PaperDone: string(PaperDone),
 	}
 
-	if err := app.Gorm.Create(&user).Error; err != nil {
+	dbUser := app.Gorm.Create(&user)
+
+	if err := dbUser.Error; err != nil {
 		return c.RenderJson(utils.Response(500, nil, err.Error()))
 	}
 
-	return c.RenderJson(utils.Response(200, app.Gorm.First(&models.User{}, app.Gorm.RowsAffected), ""))
+	userFromDb := models.User{}
+
+	revel.INFO.Println(user.ID)
+
+	app.Gorm.First(&userFromDb, user.ID)
+
+	return c.RenderJson(utils.Response(200, userFromDb, ""))
 }
 
 // Login: 用户登录

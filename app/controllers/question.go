@@ -37,7 +37,7 @@ func (q *QuestionController) Add(cid int) revel.Result {
 		Title:    title,
 		Content:  content,
 		Answers:  answer,
-		Right:    right,
+		Correct:  right,
 		Score:    score,
 		CourseID: coursesFromDB,
 	}

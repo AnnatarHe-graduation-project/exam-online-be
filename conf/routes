@@ -6,6 +6,7 @@ module:testrunner
 
 GET     /                                       App.Index
 
+POST    /auth/register                          UserController.Add
 POST	/auth/login								UserController.Login
 POST    /user/finished/:pid                     UserController.FinishedPaper
 GET     /demo/db                                Demo.Database

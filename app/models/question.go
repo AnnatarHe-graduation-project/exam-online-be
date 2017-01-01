@@ -9,12 +9,12 @@ import (
  */
 type Question struct {
 	gorm.Model
-	Title    string
-	Content  string
-	Answers  string `gorm:"type:json;"`
-	Right    string `gorm:"type:json;"`
-	HasBug   int
-	Stared   int
-	Score    int      // 答对这道题，能得的分数
-	CourseID []Course `gorm:"many2many:course_has_questions"`
+	Title    string   `json:"title"`
+	Content  string   `json:"content"`
+	Answers  string   `gorm:"type:json;" json:"answers"`
+	Correct  string   `gorm:"type:json;" json:"correct"` // 正确答案的index
+	HasBug   int      `json:"hasBug"`
+	Stared   int      `json:"stared"`
+	Score    int      `json:"score"` // 答对这道题，能得的分数
+	CourseID []Course `gorm:"many2many:course_has_questions" json:"courses"`
 }

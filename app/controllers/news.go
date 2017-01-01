@@ -31,6 +31,7 @@ func (n *NewsController) Save(uid int) revel.Result {
 	var title, content string
 	var coursesID []int
 	var courses []models.Course
+	user := models.User{}
 	// 还有个Bg，背景大图不知道怎么弄
 
 	n.Params.Bind(&title, "title")
@@ -43,11 +44,13 @@ func (n *NewsController) Save(uid int) revel.Result {
 		courses = append(courses, c)
 	}
 
+	app.Gorm.Find(&user, uid)
+
 	news := models.News{
 		Title:    title,
 		Content:  content,
 		Bg:       "nil",
-		UserID:   uint(uid),
+		UserID:   user,
 		CourseID: courses,
 	}
 	if err := app.Gorm.Create(&news).Error; err != nil {
