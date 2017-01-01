@@ -38,8 +38,9 @@ func (n *NewsController) Save(uid int) revel.Result {
 	n.Params.Bind(&coursesID, "courses")
 
 	for i := 0; i < len(coursesID); i++ {
-		c := app.Gorm.Find(&models.Course{}, coursesID[i])
-		append(courses, c)
+		c := models.Course{}
+		app.Gorm.Find(&c, coursesID[i])
+		courses = append(courses, c)
 	}
 
 	news := models.News{

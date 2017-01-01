@@ -8,12 +8,12 @@ import (
 )
 
 // UserControl: 用户管理
-type UserControl struct {
+type UserController struct {
 	*revel.Controller
 }
 
 // Add: 添加用户
-func (c UserControl) Add() revel.Result {
+func (c UserController) Add() revel.Result {
 
 	var username, pwd, schoolID string
 	var role int
@@ -38,7 +38,7 @@ func (c UserControl) Add() revel.Result {
 }
 
 // Login: 用户登录
-func (c UserControl) Login() revel.Result {
+func (c UserController) Login() revel.Result {
 
 	var uid int
 	c.Params.Bind(&uid, "uid")
@@ -47,7 +47,7 @@ func (c UserControl) Login() revel.Result {
 }
 
 // Fetch: 获取某个用户数据
-func (c UserControl) Fetch(uid int) revel.Result {
+func (c UserController) Fetch(uid int) revel.Result {
 	revel.INFO.Println(uid)
 	u := models.User{}
 	user := app.Gorm.Find(&u, uid)
@@ -55,6 +55,6 @@ func (c UserControl) Fetch(uid int) revel.Result {
 }
 
 // 完成了某张卷子，记录
-func (c UserControl) FinishedPaper(pid int) revel.Result {
+func (c UserController) FinishedPaper(pid int) revel.Result {
 	return c.RenderJson(map[int]int{})
 }

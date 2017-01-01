@@ -28,8 +28,9 @@ func (q *QuestionController) Add(cid int) revel.Result {
 	coursesFromDB := []models.Course{}
 
 	for _, course := range courses {
-		courseFromDB := app.Gorm.Find(&models.Course{}, course)
-		append(coursesFromDB, courseFromDB)
+		courseFromDB := models.Course{}
+		app.Gorm.Find(&courseFromDB, course)
+		coursesFromDB = append(coursesFromDB, courseFromDB)
 	}
 
 	question := models.Question{
