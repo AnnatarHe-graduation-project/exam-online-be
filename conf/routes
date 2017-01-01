@@ -15,7 +15,7 @@ POST    /question/add                           QuestionController.Add
 
 GET     /news                                   NewsController.GetAll
 GET     /news/:nid                              NewsController.GetOne
-
+POST    /news/:uid                              NewsController.Save
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
