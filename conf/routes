@@ -18,6 +18,11 @@ GET     /news                                   NewsController.GetAll
 GET     /news/:nid                              NewsController.GetOne
 POST    /news/:uid                              NewsController.Save
 
+
+GET     /paper/random                           PaperController.Random
+POST    /paper/add                              PaperController.Add
+GET     /paper/:pid                             PaperController.Fetch
+
 # Ignore favicon requests
 GET     /favicon.ico                            404
 
