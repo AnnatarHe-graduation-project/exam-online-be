@@ -7,6 +7,7 @@ import (
 	"github.com/revel/revel"
 )
 
+// QuestionController: question controller
 type QuestionController struct {
 	*revel.Controller
 }
@@ -14,14 +15,14 @@ type QuestionController struct {
 // Add: 添加题库，cid是课程ID
 func (q *QuestionController) Add(cid int) revel.Result {
 
-	var title, content, answer, right string
+	var title, content, answer, correct string
 	var score int
 	var courses []int
 
 	q.Params.Bind(&title, "title")
 	q.Params.Bind(&content, "content")
 	q.Params.Bind(&answer, "answer")
-	q.Params.Bind(&right, "right")
+	q.Params.Bind(&correct, "right")
 	q.Params.Bind(&score, "score")
 	q.Params.Bind(&courses, "courses")
 
@@ -37,7 +38,7 @@ func (q *QuestionController) Add(cid int) revel.Result {
 		Title:    title,
 		Content:  content,
 		Answers:  answer,
-		Correct:  right,
+		Correct:  correct,
 		Score:    score,
 		CourseID: coursesFromDB,
 	}
@@ -46,9 +47,12 @@ func (q *QuestionController) Add(cid int) revel.Result {
 		return q.RenderJson(utils.Response(500, "", err.Error()))
 	}
 
-	// 获取数据并渲染
-	questionFromDB := app.Gorm.Find(&models.Question{}, app.Gorm.RowsAffected)
+	return q.RenderJson(utils.Response(200, question, ""))
+}
 
-	return q.RenderJson(utils.Response(200, questionFromDB, ""))
-
+// Fetch: find a question by questionID
+func (q QuestionController) Fetch(qid int) revel.Result {
+	question := models.Question{}
+	app.Gorm.Find(&question, qid)
+	return q.RenderJson(utils.Response(200, question, ""))
 }

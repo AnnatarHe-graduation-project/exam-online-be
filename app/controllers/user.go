@@ -17,7 +17,6 @@ type UserController struct {
 // Add: 添加用户
 // http -f POST :9000/auth/register username='AnnatarHe' pwd='aaa' school_id='01111111' role='11'
 func (c UserController) Add() revel.Result {
-
 	var username, pwd, schoolID string
 	var role int
 
@@ -36,39 +35,49 @@ func (c UserController) Add() revel.Result {
 		PaperDone: string(PaperDone),
 	}
 
-	dbUser := app.Gorm.Create(&user)
-
-	if err := dbUser.Error; err != nil {
+	if err := app.Gorm.Create(&user).Error; err != nil {
 		return c.RenderJson(utils.Response(500, nil, err.Error()))
 	}
 
-	userFromDb := models.User{}
-
-	revel.INFO.Println(user.ID)
-
-	app.Gorm.First(&userFromDb, user.ID)
-
-	return c.RenderJson(utils.Response(200, userFromDb, ""))
+	return c.RenderJson(utils.Response(200, user, ""))
 }
 
-// Login: 用户登录
-func (c UserController) Login() revel.Result {
+// Login: 用户登录 this interface should get username and password for auth
+func (c *UserController) Login() revel.Result {
+	var username, pwd string
+	c.Params.Bind(&username, "username")
+	c.Params.Bind(&pwd, "password")
+	user := models.User{}
 
-	var uid int
-	c.Params.Bind(&uid, "uid")
+	findUserDb := app.Gorm.Find(&user, map[string]string{
+		"Name": username,
+		"Pwd":  pwd,
+	})
 
-	return c.RenderJson(map[string]int{"uid": uid})
+	if err := findUserDb.Error; err != nil {
+		return c.RenderError(err)
+	}
+
+	if user.Name == "" {
+		return c.RenderJson(utils.Response(403, nil, "user should be sign up first"))
+	}
+
+	// set session to user
+
+	return c.RenderJson(utils.Response(200, user, ""))
 }
 
 // Fetch: 获取某个用户数据
 func (c UserController) Fetch(uid int) revel.Result {
-	revel.INFO.Println(uid)
-	u := models.User{}
-	user := app.Gorm.Find(&u, uid)
-	return c.RenderJson(user)
+	user := models.User{}
+	app.Gorm.Find(&user, uid)
+	return c.RenderJson(utils.Response(200, user, ""))
 }
 
 // 完成了某张卷子，记录
 func (c UserController) FinishedPaper(pid int) revel.Result {
-	return c.RenderJson(map[int]int{})
+	// get user id from session
+
+	// and update user paper record
+	return c.RenderJson(utils.Response(200, "success", ""))
 }

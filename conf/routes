@@ -13,6 +13,7 @@ GET     /demo/db                                Demo.Database
 GET     /users/:uid                             UserController.Fetch
 
 POST    /question/add                           QuestionController.Add
+POST    /question/:qid                          QuestionController.Fetch
 
 GET     /news                                   NewsController.GetAll
 GET     /news/:nid                              NewsController.GetOne

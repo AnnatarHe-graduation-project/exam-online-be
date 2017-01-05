@@ -6,10 +6,6 @@ import (
 	"github.com/revel/revel"
 )
 
-// import "github.com/AnnatarHe/exam-online-be/app/models"
-
-// import "github.com/AnnatarHe/exam-online-be/app"
-
 type Demo struct {
 	*revel.Controller
 }
