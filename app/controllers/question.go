@@ -1,6 +1,16 @@
 package controllers
 
 import (
+	"strconv"
+
+	"errors"
+
+	"os"
+
+	"io"
+
+	"io/ioutil"
+
 	"github.com/AnnatarHe/exam-online-be/app"
 	"github.com/AnnatarHe/exam-online-be/app/models"
 	"github.com/AnnatarHe/exam-online-be/app/utils"
@@ -71,6 +81,51 @@ func (q QuestionController) Fetch(qid int) revel.Result {
 	return q.RenderJson(utils.Response(200, question, ""))
 }
 
+func (q QuestionController) AddFromExcel() revel.Result {
+
+	file, e := q.Params.Files["excel"][0].Open()
+	if e != nil {
+		revel.INFO.Println(e)
+	}
+	defer file.Close()
+
+	dest, err := os.Create("/go/a.js")
+	if err != nil {
+		revel.INFO.Println(err)
+	}
+	defer dest.Close()
+
+	if _, err := io.Copy(dest, file); err != nil {
+		return q.RenderError(err)
+	}
+
+	js, err := ioutil.ReadFile("/go/a.js")
+	revel.INFO.Println(len(js))
+	if err != nil {
+		return q.RenderError(err)
+	}
+	return q.RenderText(string(js))
+
+	// if !ok {
+	// 	return q.RenderJson(utils.Response(500, "err", "err"))
+	// }
+
+	// filenames := strings.Split(headers[0].Filename, ".")
+	// ext := strings.ToLower(filenames[len(filenames)-1])
+
+	// var (
+	// 	data image.Image
+	// 	err  error
+	// )
+
+	// switch {
+	// case ext == "jpg" || ext == "jpeg":
+	// 	data, err = jpeg.Decode(file)
+	// }
+
+	return q.RenderJson(utils.Response(200, "s", ""))
+}
+
 // decodeExcel: 解码文件，并存入到数据库
 func decodeExcel(filename string) ([]models.Question, error) {
 	var questions []models.Question
@@ -87,8 +142,30 @@ func decodeExcel(filename string) ([]models.Question, error) {
 				if err != nil {
 					return questions, err
 				}
-				if index == 1 {
+
+				switch index {
+				case titleColumn:
 					question.Title = text
+				case contentColumn:
+					question.Content = text
+				case answerColumn:
+					question.Answers = text
+				case correctColumn:
+					question.Correct = text
+				case scoreColumn:
+					i, err := strconv.Atoi(text)
+					if err != nil {
+						continue
+					}
+					question.Score = i
+				case courseColumn:
+					var courses []models.Course
+					course := models.Course{Name: text}
+					app.Gorm.Find(&course)
+
+					question.CourseID = append(courses, course)
+				default:
+					return questions, errors.New("decode error")
 				}
 
 			}
