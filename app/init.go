@@ -29,7 +29,7 @@ func initDatabase() {
 	connstring := fmt.Sprintf("host=db user=%s password=%s dbname=%s sslmode=disable", username, pwd, dbname)
 
 	Gorm, err = gorm.Open("postgres", connstring)
-	defer Gorm.Close()
+	// defer Gorm.Close()
 	Gorm.LogMode(true)
 
 	if err != nil {

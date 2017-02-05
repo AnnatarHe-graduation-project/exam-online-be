@@ -5,10 +5,6 @@ import (
 
 	"errors"
 
-	"os"
-
-	"io"
-
 	"io/ioutil"
 
 	"github.com/AnnatarHe/exam-online-be/app"
@@ -18,7 +14,7 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-// QuestionController: question controller
+// QuestionController is question controller
 type QuestionController struct {
 	*revel.Controller
 }
@@ -28,15 +24,15 @@ type QuestionController struct {
 // | string  | string  | []{string: string}                     | int     | float | string
 // | 谁最帅   | 请问谁最帅 | [{A: 'AnnatarHe'}, {B: 'liang wang'}] | 1		 | 100   | '管理学'
 const (
-	titleColumn   = 1
-	contentColumn = 2
-	answerColumn  = 3
-	correctColumn = 4
-	scoreColumn   = 5
-	courseColumn  = 6
+	titleColumn = iota
+	contentColumn
+	answerColumn
+	correctColumn
+	scoreColumn
+	courseColumn
 )
 
-// Add: 添加题库，cid是课程ID
+// Add 添加题库，cid是课程ID
 func (q *QuestionController) Add(cid int) revel.Result {
 
 	var title, content, answer, correct string
@@ -74,69 +70,51 @@ func (q *QuestionController) Add(cid int) revel.Result {
 	return q.RenderJson(utils.Response(200, question, ""))
 }
 
-// Fetch: find a question by questionID
+// Fetch find a question by questionID
 func (q QuestionController) Fetch(qid int) revel.Result {
 	question := models.Question{}
 	app.Gorm.Find(&question, qid)
 	return q.RenderJson(utils.Response(200, question, ""))
 }
 
+// AddFromExcel 将文件传入服务中，解析并返回数据
 func (q QuestionController) AddFromExcel() revel.Result {
 
 	file, e := q.Params.Files["excel"][0].Open()
+	defer file.Close()
 	if e != nil {
 		revel.INFO.Println(e)
 	}
-	defer file.Close()
+	content, _ := ioutil.ReadAll(file)
 
-	dest, err := os.Create("/go/a.js")
+	questions, err := decodeExcel(content)
+
+	for _, question := range questions {
+		revel.INFO.Println(question)
+		if err := app.Gorm.Create(&question).Error; err != nil {
+			return q.RenderJson(utils.Response(500, "", err.Error()))
+		}
+	}
+
+	// err := ioutil.WriteFile("/tmp/gofile.js", content, 0777)
 	if err != nil {
-		revel.INFO.Println(err)
-	}
-	defer dest.Close()
-
-	if _, err := io.Copy(dest, file); err != nil {
-		return q.RenderError(err)
+		return q.RenderJson(utils.Response(500, "", err.Error()))
 	}
 
-	js, err := ioutil.ReadFile("/go/a.js")
-	revel.INFO.Println(len(js))
-	if err != nil {
-		return q.RenderError(err)
-	}
-	return q.RenderText(string(js))
-
-	// if !ok {
-	// 	return q.RenderJson(utils.Response(500, "err", "err"))
-	// }
-
-	// filenames := strings.Split(headers[0].Filename, ".")
-	// ext := strings.ToLower(filenames[len(filenames)-1])
-
-	// var (
-	// 	data image.Image
-	// 	err  error
-	// )
-
-	// switch {
-	// case ext == "jpg" || ext == "jpeg":
-	// 	data, err = jpeg.Decode(file)
-	// }
-
-	return q.RenderJson(utils.Response(200, "s", ""))
+	return q.RenderJson(utils.Response(200, "success", ""))
 }
 
 // decodeExcel: 解码文件，并存入到数据库
-func decodeExcel(filename string) ([]models.Question, error) {
+func decodeExcel(buffer []byte) ([]models.Question, error) {
 	var questions []models.Question
-	xlsxData, err := xlsx.OpenFile(filename)
+	xlsxData, err := xlsx.OpenBinary(buffer)
 	if err != nil {
 		return questions, err
 	}
 
 	for _, sheet := range xlsxData.Sheets {
+		var question models.Question
 		for _, row := range sheet.Rows {
-			var question models.Question
 			for index, cell := range row.Cells {
 				text, err := cell.String()
 				if err != nil {
@@ -161,17 +139,18 @@ func decodeExcel(filename string) ([]models.Question, error) {
 				case courseColumn:
 					var courses []models.Course
 					course := models.Course{Name: text}
-					app.Gorm.Find(&course)
-
-					question.CourseID = append(courses, course)
+					if err := app.Gorm.Find(&course).Error; err != nil {
+						question.CourseID = courses
+					} else {
+						question.CourseID = append(courses, course)
+					}
 				default:
 					return questions, errors.New("decode error")
 				}
-
 			}
+			questions = append(questions, question)
 		}
 	}
 
 	return questions, nil
-
 }
