@@ -7,12 +7,12 @@ import (
 	"github.com/revel/revel"
 )
 
-// PaperController: paper that has many questions
+// PaperController paper that has many questions
 type PaperController struct {
 	*revel.Controller
 }
 
-// Fetch: fetch a paper by paper id
+// Fetch a paper by paper id
 func (p PaperController) Fetch(pid int) revel.Result {
 	paper := models.Paper{}
 	app.Gorm.Find(&paper, pid)
@@ -49,12 +49,12 @@ func (p *PaperController) Add() revel.Result {
 	hero := "hero"
 
 	paper := models.Paper{
-		Title:      title,
-		Alert:      alert,
-		Score:      score,
-		Hero:       hero,
-		QuestionID: questions,
-		CourseID:   courses,
+		Title:     title,
+		Alert:     alert,
+		Score:     score,
+		Hero:      hero,
+		Questions: questions,
+		Courses:   courses,
 	}
 
 	if err := app.Gorm.Create(&paper).Error; err != nil {
@@ -64,7 +64,7 @@ func (p *PaperController) Add() revel.Result {
 	return p.RenderJson(utils.Response(200, paper, ""))
 }
 
-// Random: just for test. it get random question form database
+// Random just for test. it get random question form database
 func (p PaperController) Random(cid int) revel.Result {
 	// the interfacce returned by api should be equal in front-end
 
@@ -75,12 +75,12 @@ func (p PaperController) Random(cid int) revel.Result {
 	courses = append(courses, course)
 
 	paper := models.Paper{
-		Title:      "test random paper",
-		Alert:      "this paper will not get any score",
-		Score:      0.00,
-		Hero:       "",
-		QuestionID: course.QuestionID,
-		CourseID:   courses,
+		Title:     "test random paper",
+		Alert:     "this paper will not get any score",
+		Score:     0.00,
+		Hero:      "",
+		Questions: course.Questions,
+		Courses:   courses,
 	}
 
 	return p.RenderJson(utils.Response(200, paper, ""))

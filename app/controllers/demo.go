@@ -6,10 +6,12 @@ import (
 	"github.com/revel/revel"
 )
 
+// Demo just a test
 type Demo struct {
 	*revel.Controller
 }
 
+// Database provider a method to test database is connected or not
 func (c *Demo) Database() revel.Result {
 
 	user := models.User{
@@ -18,7 +20,7 @@ func (c *Demo) Database() revel.Result {
 		SchoolID: "03313138",
 		Pwd:      "password",
 		Avatar:   "a path",
-		NewsID:   []models.News{{Title: "just a test1111", Content: "hello world", Bg: "/some/path/here"}},
+		News:     []models.News{{Title: "just a test1111", Content: "hello world", Bg: "/some/path/here"}},
 	}
 	if err := app.Gorm.Create(&user).Error; err != nil {
 		revel.INFO.Fatalln(err)

@@ -55,12 +55,12 @@ func (q *QuestionController) Add(cid int) revel.Result {
 	}
 
 	question := models.Question{
-		Title:    title,
-		Content:  content,
-		Answers:  answer,
-		Correct:  correct,
-		Score:    score,
-		CourseID: coursesFromDB,
+		Title:   title,
+		Content: content,
+		Answers: answer,
+		Correct: correct,
+		Score:   score,
+		Courses: coursesFromDB,
 	}
 
 	if err := app.Gorm.Create(&question).Error; err != nil {
@@ -140,9 +140,9 @@ func decodeExcel(buffer []byte) ([]models.Question, error) {
 					var courses []models.Course
 					course := models.Course{Name: text}
 					if err := app.Gorm.Find(&course).Error; err != nil {
-						question.CourseID = courses
+						question.Courses = courses
 					} else {
-						question.CourseID = append(courses, course)
+						question.Courses = append(courses, course)
 					}
 				default:
 					return questions, errors.New("decode error")

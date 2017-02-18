@@ -13,6 +13,6 @@ type User struct {
 	Pwd       string  `json:"pwd"`
 	Avatar    string  `json:"avatar"`                               // 头像
 	PaperDone string  `gorm:"type:json" json:"paperDone"`           // 完成的卷子，key是paperID，value是分数
-	PaperID   []Paper `gorm:"many2many:user_papers;" json:"papers"` // 卷子，什么意思啊
-	NewsID    []News  `json:"news"`
+	Papers    []Paper `gorm:"many2many:user_papers;" json:"papers"` // 卷子，什么意思啊
+	News      []News  `json:"news"`
 }

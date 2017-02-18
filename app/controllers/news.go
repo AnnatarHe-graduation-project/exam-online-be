@@ -47,11 +47,11 @@ func (n *NewsController) Save(uid int) revel.Result {
 	app.Gorm.Find(&user, uid)
 
 	news := models.News{
-		Title:    title,
-		Content:  content,
-		Bg:       "nil",
-		UserID:   user,
-		CourseID: courses,
+		Title:   title,
+		Content: content,
+		Bg:      "nil",
+		User:    user,
+		Courses: courses,
 	}
 	if err := app.Gorm.Create(&news).Error; err != nil {
 		return n.RenderJson(utils.Response(500, "", err.Error()))
