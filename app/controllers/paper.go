@@ -64,6 +64,11 @@ func (p *PaperController) Add() revel.Result {
 	return p.RenderJson(utils.Response(200, paper, ""))
 }
 
+// Avg is get a paper avg score
+func (p PaperController) Avg(cid int) revel.Result {
+
+}
+
 // Random just for test. it get random question form database
 func (p PaperController) Random(cid int) revel.Result {
 	// the interfacce returned by api should be equal in front-end

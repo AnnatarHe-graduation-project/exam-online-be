@@ -9,12 +9,12 @@ import (
 	"github.com/revel/revel"
 )
 
-// UserControl: 用户管理
+// UserControl 用户管理
 type UserController struct {
 	*revel.Controller
 }
 
-// Add: 添加用户
+// Add 添加用户
 // http -f POST :9000/auth/register username='AnnatarHe' pwd='aaa' school_id='01111111' role='11'
 func (c UserController) Add() revel.Result {
 	var username, pwd, schoolID string
@@ -42,7 +42,7 @@ func (c UserController) Add() revel.Result {
 	return c.RenderJson(utils.Response(200, user, ""))
 }
 
-// Login: 用户登录 this interface should get username and password for auth
+// Login 用户登录 this interface should get username and password for auth
 func (c *UserController) Login() revel.Result {
 	var username, pwd string
 	c.Params.Bind(&username, "username")
@@ -67,14 +67,17 @@ func (c *UserController) Login() revel.Result {
 	return c.RenderJson(utils.Response(200, user, ""))
 }
 
-// Fetch: 获取某个用户数据
-func (c UserController) Fetch(uid int) revel.Result {
+// Fetch 获取某个用户数据
+func (c UserController) Fetch(uid uint) revel.Result {
 	user := models.User{}
-	app.Gorm.Find(&user, uid)
+	user.ID = uint(uid)
+	// app.Gorm.Association("Papers").Find(&user, uid)
+	papers := []models.Paper{}
+	app.Gorm.Model(&user).Association("Papers").Find(&papers)
 	return c.RenderJson(utils.Response(200, user, ""))
 }
 
-// 完成了某张卷子，记录
+// FinishedPaper is 完成了某张卷子，记录
 func (c UserController) FinishedPaper(pid int) revel.Result {
 	// get user id from session
 

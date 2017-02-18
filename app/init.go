@@ -36,7 +36,9 @@ func initDatabase() {
 		revel.INFO.Println("DB error: ", err)
 	}
 
-	if err = Gorm.AutoMigrate(&Course{}, &User{}, &News{}, &Paper{}, &Question{}).Error; err != nil {
+	if err = Gorm.AutoMigrate(
+		&Course{}, &User{}, &News{}, &Paper{}, &Question{}, &StudentPaper{}, &TeacherPaper{},
+	).Error; err != nil {
 		revel.INFO.Printf("No error should happen when create table, but got %+v", err)
 	}
 
