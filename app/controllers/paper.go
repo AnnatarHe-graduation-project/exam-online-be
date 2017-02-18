@@ -26,8 +26,8 @@ func (p *PaperController) Add() revel.Result {
 	var score float32
 	var questionsID, coursesID []int
 
-	var questions []models.Question
-	var courses []models.Course
+	var questions []*models.Question
+	var courses []*models.Course
 	p.Params.Bind(&title, "title")
 	p.Params.Bind(&alert, "alert")
 	p.Params.Bind(&score, "score")
@@ -37,12 +37,12 @@ func (p *PaperController) Add() revel.Result {
 	for _, qid := range questions {
 		question := models.Question{}
 		app.Gorm.Find(&question, qid)
-		questions = append(questions, question)
+		questions = append(questions, &question)
 	}
 	for _, cid := range courses {
 		course := models.Course{}
 		app.Gorm.Find(&course, cid)
-		courses = append(courses, course)
+		courses = append(courses, &course)
 	}
 
 	// there should to deal the pic
@@ -66,6 +66,20 @@ func (p *PaperController) Add() revel.Result {
 
 // Avg is get a paper avg score
 func (p PaperController) Avg(cid int) revel.Result {
+	var count float32
+	// var students []models.User
+	var studentPaper []models.StudentPaper
+	paper := models.Paper{}
+	paper.ID = uint(cid)
+
+	app.Gorm.Model(&paper).Select("Score").Find(&studentPaper)
+
+	for _, val := range studentPaper {
+		count += val.Score
+	}
+
+	avg := count / float32(len(studentPaper))
+	return p.RenderJson(utils.Response(200, avg, ""))
 
 }
 
@@ -73,11 +87,11 @@ func (p PaperController) Avg(cid int) revel.Result {
 func (p PaperController) Random(cid int) revel.Result {
 	// the interfacce returned by api should be equal in front-end
 
-	var course models.Course
-	var courses []models.Course
+	course := models.Course{}
+	var courses []*models.Course
 	// is there should fetch data by cid with sql coded by myself?
 	app.Gorm.Find(&course, cid)
-	courses = append(courses, course)
+	courses = append(courses, &course)
 
 	paper := models.Paper{
 		Title:     "test random paper",

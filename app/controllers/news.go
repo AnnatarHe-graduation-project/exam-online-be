@@ -30,7 +30,7 @@ func (n NewsController) GetOne(nid int) revel.Result {
 func (n *NewsController) Save(uid int) revel.Result {
 	var title, content string
 	var coursesID []int
-	var courses []models.Course
+	var courses []*models.Course
 	user := models.User{}
 	// 还有个Bg，背景大图不知道怎么弄
 
@@ -41,7 +41,7 @@ func (n *NewsController) Save(uid int) revel.Result {
 	for i := 0; i < len(coursesID); i++ {
 		c := models.Course{}
 		app.Gorm.Find(&c, coursesID[i])
-		courses = append(courses, c)
+		courses = append(courses, &c)
 	}
 
 	app.Gorm.Find(&user, uid)
@@ -50,7 +50,7 @@ func (n *NewsController) Save(uid int) revel.Result {
 		Title:   title,
 		Content: content,
 		Bg:      "nil",
-		User:    user,
+		User:    &user,
 		Courses: courses,
 	}
 	if err := app.Gorm.Create(&news).Error; err != nil {

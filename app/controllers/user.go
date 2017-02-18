@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
-
 	"github.com/AnnatarHe/exam-online-be/app"
 	"github.com/AnnatarHe/exam-online-be/app/models"
 	"github.com/AnnatarHe/exam-online-be/app/utils"
@@ -25,14 +23,13 @@ func (c UserController) Add() revel.Result {
 	c.Params.Bind(&schoolID, "school_id")
 	c.Params.Bind(&role, "role")
 
-	paperDone, _ := json.Marshal([]map[uint]int{{0: 0}})
+	// paperDone, _ := json.Marshal([]map[uint]int{{0: 0}})
 
 	user := models.User{
-		Name:      username,
-		Pwd:       pwd,
-		SchoolID:  schoolID,
-		Role:      role,
-		PaperDone: string(paperDone),
+		Name:     username,
+		Pwd:      pwd,
+		SchoolID: schoolID,
+		Role:     role,
 	}
 
 	if err := app.Gorm.Create(&user).Error; err != nil {
