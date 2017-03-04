@@ -6,24 +6,25 @@ module:testrunner
 
 GET     /                                       App.Index
 
-POST    /auth/register                          UserController.Add
-POST	/auth/login								UserController.Login
-POST    /user/finished/:pid                     UserController.FinishedPaper
-GET     /demo/db                                Demo.Database
-GET     /users/:uid                             UserController.Fetch
+POST    /api/auth/register                          UserController.Add
+POST	/api/auth/login								UserController.Login
+POST    /api/user/finished/:pid                     UserController.FinishedPaper
+GET     /api/demo/db                                Demo.Database
+GET     /api/users/:uid                             UserController.Fetch
+GET     /api/profile/me                             UserController.Me
 
-POST    /question/add                           QuestionController.Add
-POST    /question/excel                         QuestionController.AddFromExcel
-POST    /question/:qid                          QuestionController.Fetch
+POST    /api/question/add                           QuestionController.Add
+POST    /api/question/excel                         QuestionController.AddFromExcel
+POST    /api/question/:qid                          QuestionController.Fetch
 
-GET     /news                                   NewsController.GetAll
-GET     /news/:nid                              NewsController.GetOne
-POST    /news/:uid                              NewsController.Save
+GET     /api/news                                   NewsController.GetAll
+GET     /api/news/:nid                              NewsController.GetOne
+POST    /api/news/:uid                              NewsController.Save
 
 
-GET     /paper/random                           PaperController.Random
-POST    /paper/add                              PaperController.Add
-GET     /paper/:pid                             PaperController.Fetch
+GET     /api/paper/random                           PaperController.Random
+POST    /api/paper/add                              PaperController.Add
+GET     /api/paper/:pid                             PaperController.Fetch
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

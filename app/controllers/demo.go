@@ -26,6 +26,7 @@ func (c *Demo) Database() revel.Result {
 		revel.INFO.Fatalln(err)
 		return c.RenderJson(err)
 	}
+	revel.INFO.Println("load demo route")
 
 	return c.RenderJson(app.Gorm.First(&user))
 
