@@ -4,9 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-/**
- * 所有问题的集合
- */
+// Question is all the question
 type Question struct {
 	gorm.Model
 	Title   string    `json:"title"`
