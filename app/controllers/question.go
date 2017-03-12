@@ -35,32 +35,28 @@ const (
 // Add 添加题库，cid是课程ID
 func (q *QuestionController) Add(cid int) revel.Result {
 
-	var title, content, answer, correct string
-	var score int
-	var courses []int
+	title := q.Params.Get("title")
+	content := q.Params.Get("content")
+	answers := q.Params.Get("answers")
+	correct := q.Params.Get("correct")
+	scoreStr := q.Params.Get("score")
+	courseStr := q.Params.Get("courses")
 
-	q.Params.Bind(&title, "title")
-	q.Params.Bind(&content, "content")
-	q.Params.Bind(&answer, "answer")
-	q.Params.Bind(&correct, "right")
-	q.Params.Bind(&score, "score")
-	q.Params.Bind(&courses, "courses")
+	score, _ := strconv.Atoi(scoreStr)
+	course, _ := strconv.Atoi(courseStr)
 
-	coursesFromDB := []*models.Course{}
-
-	for _, course := range courses {
-		courseFromDB := models.Course{}
-		app.Gorm.Find(&courseFromDB, course)
-		coursesFromDB = append(coursesFromDB, &courseFromDB)
-	}
+	courses := []*models.Course{}
+	courseFromDb := &models.Course{}
+	app.Gorm.Find(&courseFromDb, course)
+	courses = append(courses, courseFromDb)
 
 	question := models.Question{
 		Title:   title,
 		Content: content,
-		Answers: answer,
+		Answers: answers,
 		Correct: correct,
 		Score:   score,
-		Courses: coursesFromDB,
+		Courses: courses,
 	}
 
 	if err := app.Gorm.Create(&question).Error; err != nil {
@@ -75,6 +71,11 @@ func (q QuestionController) Fetch(qid int) revel.Result {
 	question := models.Question{}
 	app.Gorm.Find(&question, qid)
 	return q.RenderJson(utils.Response(200, question, ""))
+}
+func (q QuestionController) FetchAll() revel.Result {
+	questions := []models.Question{}
+	app.Gorm.Find(&questions)
+	return q.RenderJson(utils.Response(200, questions, ""))
 }
 
 // AddFromExcel 将文件传入服务中，解析并返回数据

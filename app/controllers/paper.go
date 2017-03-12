@@ -1,6 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
+
+	"strconv"
+
 	"github.com/AnnatarHe/exam-online-be/app"
 	"github.com/AnnatarHe/exam-online-be/app/models"
 	"github.com/AnnatarHe/exam-online-be/app/utils"
@@ -20,38 +24,54 @@ func (p PaperController) Fetch(pid int) revel.Result {
 	return p.RenderJson(utils.Response(200, paper, ""))
 }
 
+func (p PaperController) List() revel.Result {
+	papers := []models.Paper{}
+	app.Gorm.Find(papers)
+	return p.RenderJson(utils.Response(200, papers, ""))
+}
+
 // add a paper just not random
 func (p *PaperController) Add() revel.Result {
-	var title, alert string
-	var score float32
-	var questionsID, coursesID []int
 
 	var questions []*models.Question
 	var courses []*models.Course
-	p.Params.Bind(&title, "title")
-	p.Params.Bind(&alert, "alert")
-	p.Params.Bind(&score, "score")
-	p.Params.Bind(&questionsID, "questions")
-	p.Params.Bind(&coursesID, "courses")
+	title := p.Params.Get("title")
+	alert := p.Params.Get("alert")
+	questionsID := p.Params.Get("questions")
+	score, _ := strconv.Atoi(p.Params.Get("score"))
+	coursesStr := p.Params.Get("courses")
 
-	for _, qid := range questions {
+	// courses := p.Params.Get("courses")
+
+	var questionsJSON []int
+	if err := json.Unmarshal([]byte(questionsID), &questionsJSON); err != nil {
+		return p.RenderJson(utils.Response(500, "", err.Error()))
+	}
+	var coursesJSON []int
+	if err := json.Unmarshal([]byte(coursesStr), &coursesJSON); err != nil {
+		return p.RenderJson(utils.Response(500, "", err.Error()))
+	}
+
+	for _, qid := range questionsJSON {
 		question := models.Question{}
 		app.Gorm.Find(&question, qid)
 		questions = append(questions, &question)
 	}
-	for _, cid := range courses {
+	for _, cid := range coursesJSON {
 		course := models.Course{}
 		app.Gorm.Find(&course, cid)
 		courses = append(courses, &course)
 	}
 
-	// there should to deal the pic
-	hero := "hero"
+	hero, err := utils.FileHandler(p.Params.Files["hero"][0])
+	if err != nil {
+		return p.RenderJson(utils.Response(500, "", err.Error()))
+	}
 
 	paper := models.Paper{
 		Title:     title,
 		Alert:     alert,
-		Score:     score,
+		Score:     float32(score),
 		Hero:      hero,
 		Questions: questions,
 		Courses:   courses,

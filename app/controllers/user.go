@@ -72,7 +72,8 @@ func (c *UserController) Login() revel.Result {
 	}
 
 	// set session to user
-	c.Session["me"] = string(user.ID)
+	c.Session["me"] = strconv.Itoa(int(user.ID))
+	revel.INFO.Println(c.Session)
 
 	return c.RenderJson(utils.Response(200, user, ""))
 }
@@ -97,8 +98,12 @@ func (c UserController) FinishedPaper(pid int) revel.Result {
 
 // Me get my profile
 func (c UserController) Me() revel.Result {
-	id, err := strconv.Atoi(c.Session["mee"])
+	idStr, _ := c.Session["me"]
+	revel.INFO.Println(idStr)
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
+		revel.INFO.Println(c.Session)
+		revel.INFO.Println(err.Error())
 		return c.RenderJson(utils.Response(403, "", "login first plz"))
 	}
 	return c.Fetch(uint(id))

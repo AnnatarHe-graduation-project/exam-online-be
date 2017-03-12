@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/AnnatarHe/exam-online-be/app"
 	"github.com/AnnatarHe/exam-online-be/app/models"
 	"github.com/AnnatarHe/exam-online-be/app/utils"
@@ -14,8 +16,10 @@ type NewsController struct {
 
 // GetAll from models.News
 func (n NewsController) GetAll() revel.Result {
-	news := app.Gorm.Find(&models.News{})
-	return n.RenderJson(news)
+
+	news := []models.News{}
+	app.Gorm.Find(&news)
+	return n.RenderJson(utils.Response(200, news, ""))
 }
 
 // GetOne from models.News
@@ -26,30 +30,42 @@ func (n NewsController) GetOne(nid int) revel.Result {
 
 }
 
+// GetTrendings 获取趋势较好的文章
+func (n NewsController) GetTrendings() revel.Result {
+	return n.GetAll()
+}
+
 // Save a news from user request
-func (n *NewsController) Save(uid int) revel.Result {
-	var title, content string
-	var coursesID []int
+func (n *NewsController) Save() revel.Result {
 	var courses []*models.Course
 	user := models.User{}
-	// 还有个Bg，背景大图不知道怎么弄
 
-	n.Params.Bind(&title, "title")
-	n.Params.Bind(&content, "content")
-	n.Params.Bind(&coursesID, "courses")
+	bgPath, err := utils.FileHandler(n.Params.Files["bg"][0])
 
-	for i := 0; i < len(coursesID); i++ {
-		c := models.Course{}
-		app.Gorm.Find(&c, coursesID[i])
-		courses = append(courses, &c)
+	if err != nil {
+		return n.RenderJson(utils.Response(500, "", err.Error()))
 	}
+
+	title := n.Params.Get("title")
+	content := n.Params.Get("content")
+	courseStr := n.Params.Get("courses")
+
+	courseID, _ := strconv.Atoi(courseStr)
+
+	c := models.Course{}
+	app.Gorm.Find(&c, courseID)
+	courses = append(courses, &c)
+
+	// TODO: 最后发布时候去掉
+	// uid, _ := strconv.Atoi(n.Session["uid"])
+	uid := 11
 
 	app.Gorm.Find(&user, uid)
 
 	news := models.News{
 		Title:   title,
 		Content: content,
-		Bg:      "nil",
+		Bg:      bgPath,
 		User:    &user,
 		Courses: courses,
 	}

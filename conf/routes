@@ -13,18 +13,22 @@ GET     /api/demo/db                                Demo.Database
 GET     /api/users/:uid                             UserController.Fetch
 GET     /api/profile/me                             UserController.Me
 
+GET     /api/question                               QuestionController.FetchAll
+GET     /api/question/:qid                          QuestionController.Fetch
 POST    /api/question/add                           QuestionController.Add
 POST    /api/question/excel                         QuestionController.AddFromExcel
-POST    /api/question/:qid                          QuestionController.Fetch
 
-GET     /api/news                                   NewsController.GetAll
+GET     /api/news/list                              NewsController.GetAll
+GET     /api/news/trendings                         NewsController.GetTrendings
+POST    /api/news/add                               NewsController.Save
 GET     /api/news/:nid                              NewsController.GetOne
-POST    /api/news/:uid                              NewsController.Save
 
-
+GET     /api/exams/list                             PaperController.List
 GET     /api/paper/random                           PaperController.Random
 POST    /api/paper/add                              PaperController.Add
 GET     /api/paper/:pid                             PaperController.Fetch
+
+GET     /api/courses                                CourseController.List
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
