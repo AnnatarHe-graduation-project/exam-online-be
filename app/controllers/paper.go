@@ -19,22 +19,26 @@ type PaperController struct {
 // Fetch a paper by paper id
 func (p PaperController) Fetch(pid int) revel.Result {
 	paper := models.Paper{}
+	questions := []models.Question{}
 	app.Gorm.Find(&paper, pid)
+	app.Gorm.Model(&paper).Association("Questions").Find(&questions)
+	paper.Questions = questions
 
 	return p.RenderJson(utils.Response(200, paper, ""))
 }
 
+// List 列出所有考卷
 func (p PaperController) List() revel.Result {
 	papers := []models.Paper{}
-	app.Gorm.Find(papers)
+	app.Gorm.Find(&papers)
 	return p.RenderJson(utils.Response(200, papers, ""))
 }
 
-// add a paper just not random
+// Add 添加考卷
 func (p *PaperController) Add() revel.Result {
 
-	var questions []*models.Question
-	var courses []*models.Course
+	var questions []models.Question
+	var courses []models.Course
 	title := p.Params.Get("title")
 	alert := p.Params.Get("alert")
 	questionsID := p.Params.Get("questions")
@@ -55,12 +59,12 @@ func (p *PaperController) Add() revel.Result {
 	for _, qid := range questionsJSON {
 		question := models.Question{}
 		app.Gorm.Find(&question, qid)
-		questions = append(questions, &question)
+		questions = append(questions, question)
 	}
 	for _, cid := range coursesJSON {
 		course := models.Course{}
 		app.Gorm.Find(&course, cid)
-		courses = append(courses, &course)
+		courses = append(courses, course)
 	}
 
 	hero, err := utils.FileHandler(p.Params.Files["hero"][0])
@@ -108,10 +112,10 @@ func (p PaperController) Random(cid int) revel.Result {
 	// the interfacce returned by api should be equal in front-end
 
 	course := models.Course{}
-	var courses []*models.Course
+	var courses []models.Course
 	// is there should fetch data by cid with sql coded by myself?
 	app.Gorm.Find(&course, cid)
-	courses = append(courses, &course)
+	courses = append(courses, course)
 
 	paper := models.Paper{
 		Title:     "test random paper",

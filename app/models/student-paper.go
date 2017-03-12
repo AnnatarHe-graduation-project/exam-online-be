@@ -7,7 +7,7 @@ import (
 // StudentPaper is student has done many paper
 type StudentPaper struct {
 	gorm.Model
-	Student *User   `json:"student"`
-	Paper   *Paper  `json:"paper"`
+	Student User    `json:"student"`
+	Paper   Paper   `json:"paper"`
 	Score   float32 `json:"score"`
 }

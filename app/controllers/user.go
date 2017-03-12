@@ -34,18 +34,9 @@ func (c UserController) Add() revel.Result {
 
 	// paperDone, _ := json.Marshal([]map[uint]int{{0: 0}})
 
-	user := models.User{
-		Name:     username,
-		Pwd:      realPwd,
-		SchoolID: schoolID,
-		Avatar:   avatar,
-		Role:     role,
-	}
-
-	revel.INFO.Println(user)
-
-	if err := app.Gorm.Create(&user).Error; err != nil {
-		return c.RenderJson(utils.Response(500, nil, err.Error()))
+	user, err := models.NewUser(app.Gorm, role, username, schoolID, realPwd, avatar)
+	if err != nil {
+		return c.RenderJson(utils.Response(500, "", err.Error()))
 	}
 
 	return c.RenderJson(utils.Response(200, user, ""))
@@ -91,6 +82,34 @@ func (c UserController) Fetch(uid uint) revel.Result {
 // FinishedPaper is 完成了某张卷子，记录
 func (c UserController) FinishedPaper(pid int) revel.Result {
 	// get user id from session
+
+	// FIXME: 用用户
+	// uid, _ := strconv.Atoi(c.Session["uid"])
+	uid := 14
+
+	score, _ := strconv.Atoi(c.Params.Get("score"))
+
+	user := models.User{}
+	app.Gorm.Find(&user, uid)
+
+	paper := models.Paper{}
+	app.Gorm.Find(&paper, pid)
+
+	studentPaper := models.StudentPaper{
+		Student: user,
+		Paper:   paper,
+		Score:   float32(score),
+	}
+
+	if err := app.Gorm.Create(&studentPaper).Error; err != nil {
+		return c.RenderJson(utils.Response(500, "", err.Error()))
+	}
+
+	newPaperDone := append(user.PaperDone, studentPaper)
+	err := app.Gorm.Model(&user).Update("paperDone", newPaperDone).Error
+	if err != nil {
+		return c.RenderJson(utils.Response(500, "", err.Error()))
+	}
 
 	// and update user paper record
 	return c.RenderJson(utils.Response(200, "success", ""))

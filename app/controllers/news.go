@@ -24,10 +24,9 @@ func (n NewsController) GetAll() revel.Result {
 
 // GetOne from models.News
 func (n NewsController) GetOne(nid int) revel.Result {
-
-	news := app.Gorm.Find(&models.News{}, nid)
+	news := models.News{}
+	app.Gorm.Find(&news, nid)
 	return n.RenderJson(utils.Response(200, news, ""))
-
 }
 
 // GetTrendings 获取趋势较好的文章
@@ -37,7 +36,7 @@ func (n NewsController) GetTrendings() revel.Result {
 
 // Save a news from user request
 func (n *NewsController) Save() revel.Result {
-	var courses []*models.Course
+	var courses []models.Course
 	user := models.User{}
 
 	bgPath, err := utils.FileHandler(n.Params.Files["bg"][0])
@@ -54,7 +53,7 @@ func (n *NewsController) Save() revel.Result {
 
 	c := models.Course{}
 	app.Gorm.Find(&c, courseID)
-	courses = append(courses, &c)
+	courses = append(courses, c)
 
 	// TODO: 最后发布时候去掉
 	// uid, _ := strconv.Atoi(n.Session["uid"])
@@ -66,7 +65,7 @@ func (n *NewsController) Save() revel.Result {
 		Title:   title,
 		Content: content,
 		Bg:      bgPath,
-		User:    &user,
+		User:    user,
 		Courses: courses,
 	}
 	if err := app.Gorm.Create(&news).Error; err != nil {

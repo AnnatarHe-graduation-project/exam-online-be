@@ -45,8 +45,8 @@ func (q *QuestionController) Add(cid int) revel.Result {
 	score, _ := strconv.Atoi(scoreStr)
 	course, _ := strconv.Atoi(courseStr)
 
-	courses := []*models.Course{}
-	courseFromDb := &models.Course{}
+	courses := []models.Course{}
+	courseFromDb := models.Course{}
 	app.Gorm.Find(&courseFromDb, course)
 	courses = append(courses, courseFromDb)
 
@@ -138,12 +138,12 @@ func decodeExcel(buffer []byte) ([]models.Question, error) {
 					}
 					question.Score = i
 				case courseColumn:
-					var courses []*models.Course
+					var courses []models.Course
 					course := models.Course{Name: text}
 					if err := app.Gorm.Find(&course).Error; err != nil {
 						question.Courses = courses
 					} else {
-						question.Courses = append(courses, &course)
+						question.Courses = append(courses, course)
 					}
 				default:
 					return questions, errors.New("decode error")

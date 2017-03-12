@@ -13,18 +13,15 @@ type CourseController struct {
 
 // List 获取学科列表
 func (c CourseController) List() revel.Result {
-
 	courses := []models.Course{}
-	papers := []*models.Paper{}
+	papers := []models.Paper{}
 	app.Gorm.Find(&courses)
 
-	for _, val := range courses {
+	for index, val := range courses {
 		app.Gorm.Model(&val).Related(&papers, "Papers")
-		// val.Papers = papers
-		revel.INFO.Println(papers)
-		revel.INFO.Println(val)
+		val.Papers = papers
+		courses[index] = val
 	}
 
 	return c.RenderJson(utils.Response(200, courses, ""))
-
 }
