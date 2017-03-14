@@ -91,7 +91,6 @@ func (q QuestionController) AddFromExcel() revel.Result {
 	questions, err := decodeExcel(content)
 
 	for _, question := range questions {
-		revel.INFO.Println(question)
 		if err := app.Gorm.Create(&question).Error; err != nil {
 			return q.RenderJson(utils.Response(500, "", err.Error()))
 		}

@@ -43,10 +43,10 @@ func (c UserController) Add() revel.Result {
 }
 
 // Login 用户登录 this interface should get username and password for auth
-func (c *UserController) Login() revel.Result {
-	var username, pwd string
-	c.Params.Bind(&username, "username")
-	c.Params.Bind(&pwd, "password")
+func (c UserController) Login() revel.Result {
+	username := c.Params.Get("username")
+	pwd := c.Params.Get("password")
+
 	user := models.User{}
 
 	findUserDb := app.Gorm.Find(&user, map[string]string{
@@ -64,7 +64,6 @@ func (c *UserController) Login() revel.Result {
 
 	// set session to user
 	c.Session["me"] = strconv.Itoa(int(user.ID))
-	revel.INFO.Println(c.Session)
 
 	return c.RenderJson(utils.Response(200, user, ""))
 }
@@ -84,8 +83,7 @@ func (c UserController) FinishedPaper(pid int) revel.Result {
 	// get user id from session
 
 	// FIXME: 用用户
-	// uid, _ := strconv.Atoi(c.Session["uid"])
-	uid := 14
+	uid, _ := strconv.Atoi(c.Session["uid"])
 
 	score, _ := strconv.Atoi(c.Params.Get("score"))
 
@@ -118,11 +116,8 @@ func (c UserController) FinishedPaper(pid int) revel.Result {
 // Me get my profile
 func (c UserController) Me() revel.Result {
 	idStr, _ := c.Session["me"]
-	revel.INFO.Println(idStr)
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		revel.INFO.Println(c.Session)
-		revel.INFO.Println(err.Error())
 		return c.RenderJson(utils.Response(403, "", "login first plz"))
 	}
 	return c.Fetch(uint(id))
