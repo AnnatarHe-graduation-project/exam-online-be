@@ -62,19 +62,29 @@ func (c UserController) Login() revel.Result {
 		return c.RenderJson(utils.Response(403, nil, "user should be sign up first"))
 	}
 
-	// set session to user
 	c.Session["me"] = strconv.Itoa(int(user.ID))
-
 	return c.RenderJson(utils.Response(200, user, ""))
 }
 
 // Fetch 获取某个用户数据
-func (c UserController) Fetch(uid uint) revel.Result {
+func (c UserController) Fetch(uid int) revel.Result {
 	user := models.User{}
-	user.ID = uint(uid)
-	// app.Gorm.Association("Papers").Find(&user, uid)
+
+	if err := app.Gorm.Find(&user, uid).Error; err != nil {
+		return c.RenderJson(utils.Response(500, "", "login plz"))
+	}
+
 	papers := []models.Paper{}
-	app.Gorm.Model(&user).Association("Papers").Find(&papers)
+	paperDone := []models.StudentPaper{}
+	news := []models.News{}
+
+	if err := app.Gorm.Model(&user).Related(&papers, "Papers").Related(&paperDone, "PaperDone").Related(&news, "News").Error; err != nil {
+		return c.RenderJson(utils.Response(500, "", err.Error()))
+	}
+	user.PaperDone = paperDone
+	user.Papers = papers
+	user.News = news
+
 	return c.RenderJson(utils.Response(200, user, ""))
 }
 
@@ -115,10 +125,12 @@ func (c UserController) FinishedPaper(pid int) revel.Result {
 
 // Me get my profile
 func (c UserController) Me() revel.Result {
+	revel.INFO.Println(c.Session)
 	idStr, _ := c.Session["me"]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
+		revel.INFO.Println(err.Error())
 		return c.RenderJson(utils.Response(403, "", "login first plz"))
 	}
-	return c.Fetch(uint(id))
+	return c.Fetch(id)
 }

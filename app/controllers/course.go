@@ -25,3 +25,19 @@ func (c CourseController) List() revel.Result {
 
 	return c.RenderJson(utils.Response(200, courses, ""))
 }
+
+// Add 添加一个课程
+func (c CourseController) Add() revel.Result {
+	name := c.Params.Get("name")
+	desc := c.Params.Get("desc")
+
+	course := models.Course{
+		Name: name,
+		Desc: desc,
+	}
+
+	if err := app.Gorm.Create(&course).Error; err != nil {
+		return c.RenderJson(utils.Response(500, "", err.Error()))
+	}
+	return c.RenderJson(utils.Response(200, course, ""))
+}

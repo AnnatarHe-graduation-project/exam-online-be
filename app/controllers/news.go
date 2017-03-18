@@ -55,9 +55,7 @@ func (n *NewsController) Save() revel.Result {
 	app.Gorm.Find(&c, courseID)
 	courses = append(courses, c)
 
-	// TODO: 最后发布时候去掉
-	// uid, _ := strconv.Atoi(n.Session["uid"])
-	uid := 11
+	uid, _ := strconv.Atoi(n.Session["uid"])
 
 	app.Gorm.Find(&user, uid)
 

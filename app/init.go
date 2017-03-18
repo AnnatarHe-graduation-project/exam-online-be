@@ -1,6 +1,8 @@
 package app
 
 import (
+	"time"
+
 	. "github.com/AnnatarHe/exam-online-be/app/models"
 
 	"fmt"
@@ -8,6 +10,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/revel/revel"
+	"github.com/revel/revel/cache"
 	"gopkg.in/redis.v5"
 )
 
@@ -47,14 +50,15 @@ func initDatabase() {
 
 // init redis server
 func initRedis() {
-	Redis = redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
-		Password: "",
-		DB:       0,
-	})
-	pong, err := Redis.Ping().Result()
+	// Redis = redis.NewClient(&redis.Options{
+	// 	Addr:     "redis:6379",
+	// 	Password: "",
+	// 	DB:       0,
+	// })
 
-	revel.INFO.Println("redis: ", pong, err)
+	// pong, err := Redis.Ping().Result()
+	// revel.INFO.Println("redis: ", pong, err)
+	cache.Instance = cache.NewRedisCache("redis:6379", "", time.Hour*24)
 }
 
 // InitDB: 初始化数据库

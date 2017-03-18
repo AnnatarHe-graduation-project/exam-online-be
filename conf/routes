@@ -6,6 +6,8 @@ module:testrunner
 
 GET     /                                       App.Index
 
+GET     /demo/testrunner                            Demo.Test
+
 POST    /api/auth/register                          UserController.Add
 POST	/api/auth/login								UserController.Login
 POST    /api/user/finished/:pid                     UserController.FinishedPaper
@@ -28,6 +30,7 @@ POST    /api/paper/add                              PaperController.Add
 GET     /api/paper/:pid                             PaperController.Fetch
 
 GET     /api/courses                                CourseController.List
+POST    /api/courses                                CourseController.Add
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

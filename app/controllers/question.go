@@ -84,11 +84,13 @@ func (q QuestionController) AddFromExcel() revel.Result {
 	file, e := q.Params.Files["excel"][0].Open()
 	defer file.Close()
 	if e != nil {
-		revel.INFO.Println(e)
+		return q.RenderJson(utils.Response(500, "", e.Error()))
 	}
+
 	content, _ := ioutil.ReadAll(file)
 
 	questions, err := decodeExcel(content)
+	revel.INFO.Println(questions)
 
 	for _, question := range questions {
 		if err := app.Gorm.Create(&question).Error; err != nil {
@@ -113,14 +115,17 @@ func decodeExcel(buffer []byte) ([]models.Question, error) {
 	}
 
 	for _, sheet := range xlsxData.Sheets {
-		var question models.Question
 		for _, row := range sheet.Rows {
+			question := models.Question{}
+			revel.INFO.Printf("dfjslkdfjlkdjflakdjflkadjfksdjf")
 			for index, cell := range row.Cells {
 				text, err := cell.String()
 				if err != nil {
 					return questions, err
 				}
-
+				revel.INFO.Println("-------------------------------------")
+				revel.INFO.Println(index, text)
+				revel.INFO.Println("-------------------------------------")
 				switch index {
 				case titleColumn:
 					question.Title = text
@@ -137,7 +142,7 @@ func decodeExcel(buffer []byte) ([]models.Question, error) {
 					}
 					question.Score = i
 				case courseColumn:
-					var courses []models.Course
+					courses := []models.Course{}
 					course := models.Course{Name: text}
 					if err := app.Gorm.Find(&course).Error; err != nil {
 						question.Courses = courses
