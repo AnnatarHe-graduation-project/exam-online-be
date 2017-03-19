@@ -28,6 +28,7 @@ GET     /api/exams/list                             PaperController.List
 GET     /api/paper/random                           PaperController.Random
 POST    /api/paper/add                              PaperController.Add
 GET     /api/paper/:pid                             PaperController.Fetch
+GET     /api/paper/:pid/avg                         PaperController.Avg
 
 GET     /api/courses                                CourseController.List
 POST    /api/courses                                CourseController.Add

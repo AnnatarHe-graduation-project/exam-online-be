@@ -21,7 +21,9 @@ func (p PaperController) Fetch(pid int) revel.Result {
 	paper := models.Paper{}
 	questions := []models.Question{}
 	app.Gorm.Find(&paper, pid)
-	app.Gorm.Model(&paper).Association("Questions").Find(&questions)
+	if err := app.Gorm.Model(&paper).Related(&questions, "Questions").Error; err != nil {
+		return p.RenderJson(utils.Response(500, "", err.Error()))
+	}
 	paper.Questions = questions
 
 	return p.RenderJson(utils.Response(200, paper, ""))
@@ -72,6 +74,11 @@ func (p *PaperController) Add() revel.Result {
 		return p.RenderJson(utils.Response(500, "", err.Error()))
 	}
 
+	uid, err := strconv.Atoi(p.Session["me"])
+	if err != nil {
+		return p.RenderJson(utils.Response(500, "", err.Error()))
+	}
+
 	paper := models.Paper{
 		Title:     title,
 		Alert:     alert,
@@ -79,6 +86,7 @@ func (p *PaperController) Add() revel.Result {
 		Hero:      hero,
 		Questions: questions,
 		Courses:   courses,
+		Teacher:   uint(uid),
 	}
 
 	if err := app.Gorm.Create(&paper).Error; err != nil {

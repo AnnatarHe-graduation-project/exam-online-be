@@ -7,6 +7,8 @@ import (
 
 	"io/ioutil"
 
+	"encoding/json"
+
 	"github.com/AnnatarHe/exam-online-be/app"
 	"github.com/AnnatarHe/exam-online-be/app/models"
 	"github.com/AnnatarHe/exam-online-be/app/utils"
@@ -69,12 +71,23 @@ func (q *QuestionController) Add(cid int) revel.Result {
 // Fetch find a question by questionID
 func (q QuestionController) Fetch(qid int) revel.Result {
 	question := models.Question{}
+	course := []models.Course{}
 	app.Gorm.Find(&question, qid)
+	app.Gorm.Model(&question).Related(&course, "Courses")
+	question.Courses = course
 	return q.RenderJson(utils.Response(200, question, ""))
 }
+
 func (q QuestionController) FetchAll() revel.Result {
-	questions := []models.Question{}
+	questions := []*models.Question{}
 	app.Gorm.Find(&questions)
+
+	for _, val := range questions {
+		courses := []models.Course{}
+		app.Gorm.Model(&val).Related(&courses, "Courses")
+		val.Courses = courses
+	}
+
 	return q.RenderJson(utils.Response(200, questions, ""))
 }
 
@@ -90,7 +103,6 @@ func (q QuestionController) AddFromExcel() revel.Result {
 	content, _ := ioutil.ReadAll(file)
 
 	questions, err := decodeExcel(content)
-	revel.INFO.Println(questions)
 
 	for _, question := range questions {
 		if err := app.Gorm.Create(&question).Error; err != nil {
@@ -117,22 +129,23 @@ func decodeExcel(buffer []byte) ([]models.Question, error) {
 	for _, sheet := range xlsxData.Sheets {
 		for _, row := range sheet.Rows {
 			question := models.Question{}
-			revel.INFO.Printf("dfjslkdfjlkdjflakdjflkadjfksdjf")
 			for index, cell := range row.Cells {
 				text, err := cell.String()
 				if err != nil {
 					return questions, err
 				}
-				revel.INFO.Println("-------------------------------------")
-				revel.INFO.Println(index, text)
-				revel.INFO.Println("-------------------------------------")
 				switch index {
 				case titleColumn:
 					question.Title = text
 				case contentColumn:
 					question.Content = text
 				case answerColumn:
-					question.Answers = text
+					answerStr := text
+					answerJSON, err := json.Marshal(answerStr)
+					if err != nil {
+						return questions, err
+					}
+					question.Answers = string(answerJSON)
 				case correctColumn:
 					question.Correct = text
 				case scoreColumn:
@@ -143,12 +156,17 @@ func decodeExcel(buffer []byte) ([]models.Question, error) {
 					question.Score = i
 				case courseColumn:
 					courses := []models.Course{}
-					course := models.Course{Name: text}
-					if err := app.Gorm.Find(&course).Error; err != nil {
-						question.Courses = courses
-					} else {
-						question.Courses = append(courses, course)
+					course := models.Course{}
+					if err := app.Gorm.FirstOrCreate(&course, models.Course{
+						Name: text,
+					}).Error; err != nil {
+						return questions, err
 					}
+
+					revel.INFO.Println(course)
+
+					question.Courses = append(courses, course)
+
 				default:
 					return questions, errors.New("decode error")
 				}

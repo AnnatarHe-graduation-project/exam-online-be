@@ -17,6 +17,15 @@ type UserController struct {
 	*revel.Controller
 }
 
+func getRealPwd(pwd string) (realPwd string) {
+
+	md5 := md5.New()
+	md5.Write([]byte(pwd))
+
+	realPwd = hex.EncodeToString(md5.Sum(nil))
+	return
+}
+
 // Add 添加用户
 // http -f POST :9000/auth/register username='AnnatarHe' pwd='aaa' school_id='01111111' role='11'
 func (c UserController) Add() revel.Result {
@@ -27,10 +36,7 @@ func (c UserController) Add() revel.Result {
 	avatar := c.Params.Form.Get("avatar")
 	role, _ := strconv.Atoi(c.Params.Form.Get("role"))
 
-	md5 := md5.New()
-	md5.Write([]byte(pwd))
-
-	realPwd := hex.EncodeToString(md5.Sum(nil))
+	realPwd := getRealPwd(pwd)
 
 	// paperDone, _ := json.Marshal([]map[uint]int{{0: 0}})
 
@@ -47,15 +53,16 @@ func (c UserController) Login() revel.Result {
 	username := c.Params.Get("username")
 	pwd := c.Params.Get("password")
 
-	user := models.User{}
+	realPwd := getRealPwd(pwd)
 
-	findUserDb := app.Gorm.Find(&user, map[string]string{
-		"Name": username,
-		"Pwd":  pwd,
+	user := models.User{}
+	findUserDb := app.Gorm.Find(&user, models.User{
+		Name: username,
+		Pwd:  realPwd,
 	})
 
 	if err := findUserDb.Error; err != nil {
-		return c.RenderError(err)
+		return c.RenderJson(utils.Response(403, "", err.Error()))
 	}
 
 	if user.Name == "" {
@@ -78,9 +85,29 @@ func (c UserController) Fetch(uid int) revel.Result {
 	paperDone := []models.StudentPaper{}
 	news := []models.News{}
 
-	if err := app.Gorm.Model(&user).Related(&papers, "Papers").Related(&paperDone, "PaperDone").Related(&news, "News").Error; err != nil {
+	// app.Gorm.Model(&user).Related(&paperDone, "Student")
+
+	if err := app.Gorm.Model(&user).Related(&papers, "Papers").Related(&paperDone, "Student").Related(&news, "News").Error; err != nil {
 		return c.RenderJson(utils.Response(500, "", err.Error()))
 	}
+
+	for index, val := range paperDone {
+		studentPaperDonePapers := models.Paper{}
+		app.Gorm.Model(&val).Related(&studentPaperDonePapers, "Paper")
+		paperDone[index].PaperContent = studentPaperDonePapers
+	}
+
+	// 给老师看的：学生考试成绩统计
+	studentPapers := []models.StudentPaper{}
+	if len(papers) > 0 {
+		for _, p := range papers {
+			studentPaperItem := models.StudentPaper{}
+			app.Gorm.Model(&p).Related(&studentPapers, "Paper")
+			studentPapers = append(studentPapers, studentPaperItem)
+		}
+	}
+
+	user.PaperDoneByStudent = studentPapers
 	user.PaperDone = paperDone
 	user.Papers = papers
 	user.News = news
@@ -90,22 +117,13 @@ func (c UserController) Fetch(uid int) revel.Result {
 
 // FinishedPaper is 完成了某张卷子，记录
 func (c UserController) FinishedPaper(pid int) revel.Result {
-	// get user id from session
-
-	// FIXME: 用用户
-	uid, _ := strconv.Atoi(c.Session["uid"])
+	uid, _ := strconv.Atoi(c.Session["me"])
 
 	score, _ := strconv.Atoi(c.Params.Get("score"))
 
-	user := models.User{}
-	app.Gorm.Find(&user, uid)
-
-	paper := models.Paper{}
-	app.Gorm.Find(&paper, pid)
-
 	studentPaper := models.StudentPaper{
-		Student: user,
-		Paper:   paper,
+		Student: uint(uid),
+		Paper:   uint(pid),
 		Score:   float32(score),
 	}
 
@@ -113,19 +131,11 @@ func (c UserController) FinishedPaper(pid int) revel.Result {
 		return c.RenderJson(utils.Response(500, "", err.Error()))
 	}
 
-	newPaperDone := append(user.PaperDone, studentPaper)
-	err := app.Gorm.Model(&user).Update("paperDone", newPaperDone).Error
-	if err != nil {
-		return c.RenderJson(utils.Response(500, "", err.Error()))
-	}
-
-	// and update user paper record
-	return c.RenderJson(utils.Response(200, "success", ""))
+	return c.RenderJson(utils.Response(200, score, ""))
 }
 
 // Me get my profile
 func (c UserController) Me() revel.Result {
-	revel.INFO.Println(c.Session)
 	idStr, _ := c.Session["me"]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

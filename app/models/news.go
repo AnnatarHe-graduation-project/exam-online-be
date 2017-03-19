@@ -10,6 +10,6 @@ type News struct {
 	Bg      string   `json:"bg"`                     // 背景大图
 	Up      int      `gorm:"default:0;" json:"up"`   // 被赞了多少次
 	Down    int      `gorm:"default:0;" json:"down"` // 被踩了多少次
-	User    User     `json:"user"`
+	UserID  uint     `json:"user"`
 	Courses []Course `gorm:"many2many:course_has_news;"`
 }

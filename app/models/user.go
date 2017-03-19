@@ -11,10 +11,12 @@ type User struct {
 	Name      string         `json:"name"`
 	SchoolID  string         `json:"schoolId"` // 学号，教师号什么的
 	Pwd       string         `json:"-"`
-	Avatar    string         `json:"avatar"`    // 头像
-	PaperDone []StudentPaper `json:"paperDone"` // 完成的卷子，学生
-	Papers    []Paper        `json:"papers"`    // 自己所拥有的卷子, 教师
-	News      []News         `json:"news"`
+	Avatar    string         `json:"avatar"`                           // 头像
+	PaperDone []StudentPaper `json:"paperDone"`                        // 完成的卷子，学生
+	Papers    []Paper        `gorm:"ForeignKey:Teacher" json:"papers"` // 自己所拥有的卷子, 教师
+	News      []News         `gorm:"ForeignKey:UserID" json:"news"`
+
+	PaperDoneByStudent []StudentPaper `json:"PaperDoneByStudent"` // 被学生完成的卷子
 }
 
 // NewUser 创建一个用户

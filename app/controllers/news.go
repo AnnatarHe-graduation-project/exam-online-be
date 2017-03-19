@@ -37,7 +37,6 @@ func (n NewsController) GetTrendings() revel.Result {
 // Save a news from user request
 func (n *NewsController) Save() revel.Result {
 	var courses []models.Course
-	user := models.User{}
 
 	bgPath, err := utils.FileHandler(n.Params.Files["bg"][0])
 
@@ -55,15 +54,13 @@ func (n *NewsController) Save() revel.Result {
 	app.Gorm.Find(&c, courseID)
 	courses = append(courses, c)
 
-	uid, _ := strconv.Atoi(n.Session["uid"])
-
-	app.Gorm.Find(&user, uid)
+	uid, _ := strconv.Atoi(n.Session["me"])
 
 	news := models.News{
 		Title:   title,
 		Content: content,
 		Bg:      bgPath,
-		User:    user,
+		UserID:  uint(uid),
 		Courses: courses,
 	}
 	if err := app.Gorm.Create(&news).Error; err != nil {
