@@ -11,7 +11,13 @@ type NewsTest struct {
 
 // TestNewsIndexPage should ok
 func (t *NewsTest) TestNewsIndexPage() {
-	t.Get("/news")
+	t.Get("/api/news/list")
 	t.AssertOk()
-	t.AssertContentType("text/json; charset=utf-8")
+	t.AssertContentType("application/json; charset=utf-8")
+}
+
+func (t *NewsTest) TestNewsTrendingsPage() {
+	t.Get("/api/news/trendings")
+	t.AssertOk()
+	t.AssertContentType("application/json; charset=utf-8")
 }
