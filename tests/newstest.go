@@ -16,6 +16,7 @@ func (t *NewsTest) TestNewsIndexPage() {
 	t.AssertContentType("application/json; charset=utf-8")
 }
 
+// TestNewsTrendingsPage should ok
 func (t *NewsTest) TestNewsTrendingsPage() {
 	t.Get("/api/news/trendings")
 	t.AssertOk()
