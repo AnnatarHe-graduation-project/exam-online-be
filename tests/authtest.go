@@ -18,6 +18,7 @@ func (t *AuthTest) TestRegister() {
 	t.AssertOk()
 }
 
+// TestLoginCorrect whill pass when user input correct username and password
 func (t *AuthTest) TestLoginCorrect() {
 	authData := url.Values{"username": {"foobar"}, "pwd": {"foobar"}}
 	t.PostForm("/api/auth/login", authData)
@@ -25,8 +26,10 @@ func (t *AuthTest) TestLoginCorrect() {
 	t.AssertContains("200")
 }
 
+// TestLoginIncorrect will fail when user enter incorrect username and password
 func (t *AuthTest) TestLoginIncorrect() {
 	authData := url.Values{"username": {"incorrect"}, "password": {"incorrect"}}
 	t.PostForm("/api/auth/login", authData)
-	t.AssertStatus(403)
+	t.AssertStatus(200)
+	t.AssertContains("403")
 }

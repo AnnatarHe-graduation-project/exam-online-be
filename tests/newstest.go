@@ -1,8 +1,6 @@
 package tests
 
-import (
-	"github.com/revel/revel/testing"
-)
+import "github.com/revel/revel/testing"
 
 // NewsTest is news controller test
 type NewsTest struct {
@@ -22,3 +20,6 @@ func (t *NewsTest) TestNewsTrendingsPage() {
 	t.AssertOk()
 	t.AssertContentType("application/json; charset=utf-8")
 }
+
+// func (t *NewsTest) TestAddNewsFunc() {
+// }
